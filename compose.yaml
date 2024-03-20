@@ -2,7 +2,7 @@ version: '3.9'
 services:
   node:
     image: node
-    working_dir: /home/node/app
+    working_dir: /app
     env_file:
       - .env
     command: 
@@ -12,8 +12,26 @@ services:
     ports:
       - '3003:3003'
     volumes:
-      - './src:/home/node/app'
-  # mysql:
-  #   image: mysq
-  #   ports:
-  #     - '27017:27017'
+      - './src:/app'
+  db:
+    image: mysql:8.0
+    restart: always
+    environment:
+      MYSQL_DATABASE: ${DB_NAME}
+      MYSQL_USER: ${DB_USER}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+      MYSQL_RANDOM_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+    volumes:
+      - ./db:/var/lib/mysql
+
+  pma:
+    image: phpmyadmin/phpmyadmin
+    ports:
+      - '8081:80'
+    restart : always
+    depends_on:
+      - db
+    environment:
+      - PMA_ARBITRARY=1
+
+
